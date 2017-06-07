@@ -6,5 +6,5 @@
 #' @name acme
 #' @export
 acme_directory <- function(){
-  GET("directory")
+  GET("/directory")
 }

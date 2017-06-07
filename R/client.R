@@ -7,7 +7,7 @@
 #' @param server acme server endpoint root
 acme_options <- local({
   VERBOSE = TRUE
-  SERVER = 'https://acme-v01.api.letsencrypt.org/'
+  SERVER = 'https://acme-v01.api.letsencrypt.org'
   function(verbose = NULL, server = NULL){
     if(length(verbose))
       VERBOSE <<- verbose
@@ -21,35 +21,48 @@ acme_options <- local({
 })
 
 GET <- function(path){
-  fetch(path, handle = handle())
+  fetch(path, handle = acme_handle())
 }
 
 HEAD <- function(path){
-  fetch(path, handle = handle(nobody = TRUE))
+  fetch(path, acme_handle(nobody = TRUE))
 }
 
 POST <- function(path, data){
-  fetch(path, handle = handle(postfields = TRUE))
+  handle <- acme_handle(postfields = jsonlite::toJSON(data))
+  # TODO: set a nonce
+  fetch(path, handle = handle)
+}
+
+find_header <- function(name, headers){
+  pattern <- paste0("^", name, "\\s*:\\s*")
+  values <- grep(pattern, headers, ignore.case = TRUE, value = TRUE)
+  sub(pattern, "", values, ignore.case = TRUE)
 }
 
 fetch <- function(path, handle){
   url <- acme_url(path)
-  curl::handle_setopt(handle, verbose = acme_options()$verbose)
+  handle <- curl::handle_setopt(handle, verbose = acme_options()$verbose)
   req <- curl::curl_fetch_memory(url, handle)
   if(req$status >= 400)
-    stop(sprintf("HTTP %d: %s", req$status, rawToChar(req$content)), call. = FALSE)
-  jsonlite::fromJSON(rawToChar(req$content))
+    bail("HTTP %d (%s): %s", req$status, path, rawToChar(req$content))
+  nonce <- find_header("replay-nonce", parse_headers(res$headers))
+  if(length(nonce))
+    set_nonce(nonce)
+  if(length(req$content))
+    jsonlite::fromJSON(rawToChar(req$content))
 }
 
-handle <- function(...){
-  handle <- curl::new_handle(
+acme_handle <- function(...){
+  curl::new_handle(...,
     useragent = paste(R.version.string, "/ curl", utils::packageVersion('curl'), "/ acme", utils::packageVersion('acme')))
 }
 
 acme_url <- function(endpoint, server = acme_options()$server) {
-  url_path(c(server, endpoint))
+  paste0(server, url_path(endpoint))
 }
 
 url_path <- function(pieces){
-  do.call(file.path, as.list(c(pieces, fsep = "/")))
+  url <- do.call(file.path, as.list(c(pieces, fsep = "/")))
+  gsub("/+", "/", url)
 }
