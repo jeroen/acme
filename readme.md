@@ -6,7 +6,14 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/acme)](http://cran.r-project.org/package=acme)
 [![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/acme)](http://cran.r-project.org/web/packages/acme/index.html)
 
-> ACME client. Work in progress.
+> IETF ACME client. Work in progress.
+
+## Resources
+
+Implementing client for ACME as used by e.g. LetsEncrypt for issuing HTTPS certificates.
+
+ - Editor copy: https://ietf-wg-acme.github.io/acme/
+ - Official spec: https://tools.ietf.org/html/draft-ietf-acme-acme
 
 ## Installation
 

@@ -1,11 +1,11 @@
 Package: acme
 Type: Package
-Title: R Client for ACME Protocol
+Title: R Client for IETF ACME Protocol
 Version: 0.1
 Author: Jeroen Ooms
 Maintainer: Jeroen Ooms <jeroen@berkeley.edu>
 Description: A client for the ACME protocol as used by e.g LetsEncrypt for issuing
-    TLS certificates. Work in progress.
+    HTTPS certificates. Work in progress.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
