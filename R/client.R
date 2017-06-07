@@ -42,7 +42,8 @@ find_header <- function(name, headers){
 
 fetch <- function(path, handle){
   url <- acme_url(path)
-  handle <- curl::handle_setopt(handle, verbose = acme_options()$verbose)
+  curl::handle_setopt(handle, verbose = acme_options()$verbose)
+  curl::handle_setheaders(handle, "Accept-Language" = "en-US")
   req <- curl::curl_fetch_memory(url, handle)
   if(req$status >= 400)
     bail("HTTP %d (%s): %s", req$status, path, rawToChar(req$content))
